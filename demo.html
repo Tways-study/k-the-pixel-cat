@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>K the pixel cat — interactive portfolio pet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0b1020; --bg-2: #10172d; --line: #1e2847; --text: #dfe4f3; --muted: #7c86a8;
+    --accent: #8091cf; --hot: #f5f7fc;
+    --display: 'Silkscreen', ui-monospace, monospace;
+    --body: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { min-height: 100%; }
+  body {
+    background:
+      radial-gradient(circle at 1px 1px, #1a2442 1px, transparent 0) 0 0 / 22px 22px,
+      var(--bg);
+    color: var(--text); font: 14px/1.6 var(--body);
+    min-height: 100vh; padding: clamp(24px, 6vw, 72px) clamp(20px, 6vw, 80px) 220px;
+  }
+  .wrap { max-width: 1040px; display: grid; gap: 48px; grid-template-columns: 1.15fr 1fr; align-items: start; }
+  @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } }
+
+  .tag { font: 700 11px var(--display); letter-spacing: .14em; color: var(--accent); display: inline-flex; gap: 10px; align-items: center; }
+  .tag::before { content: ''; width: 8px; height: 8px; background: var(--accent); box-shadow: 8px 0 0 var(--bg), 16px 0 0 var(--accent); margin-right: 16px; }
+  h1 { font: 700 clamp(44px, 8vw, 92px)/.9 var(--display); letter-spacing: -.02em; margin: 18px 0 22px; color: var(--hot); }
+  h1 span { color: var(--accent); }
+  .lede { color: var(--muted); max-width: 46ch; }
+  .lede b { color: var(--text); font-weight: 600; }
+
+  .readout { margin-top: 32px; display: flex; align-items: baseline; gap: 14px; border-top: 2px solid var(--line); padding-top: 18px; }
+  .readout small { font: 400 11px var(--display); color: var(--muted); letter-spacing: .12em; }
+  .readout output { font: 700 28px var(--display); color: var(--hot); }
+  .readout output::after { content: '_'; animation: caret 1s steps(1) infinite; color: var(--accent); }
+  @keyframes caret { 50% { opacity: 0; } }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 28px; }
+  th { text-align: left; font: 400 11px var(--display); letter-spacing: .12em; color: var(--muted); padding: 0 0 10px; }
+  td { padding: 9px 0; border-top: 1px dashed var(--line); vertical-align: top; }
+  td:first-child { color: var(--hot); white-space: nowrap; padding-right: 20px; }
+  td:last-child { color: var(--muted); }
+  kbd { font: 600 11px var(--body); border: 1px solid var(--line); border-bottom-width: 3px; padding: 1px 6px; border-radius: 4px; color: var(--text); }
+
+  .panel { background: var(--bg-2); border: 2px solid var(--line); padding: 22px; position: relative; }
+  .panel::before { content: 'STATES'; position: absolute; top: -9px; left: 16px; background: var(--bg); padding: 0 8px; font: 400 11px var(--display); letter-spacing: .14em; color: var(--accent); }
+  .chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+  .chips button {
+    font: 400 12px var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--text);
+    background: transparent; border: 2px solid var(--line); padding: 10px 8px; cursor: pointer; text-align: left;
+    transition: transform .12s steps(2), border-color .12s, background .12s;
+  }
+  .chips button:hover { border-color: var(--accent); transform: translate(-2px, -2px); box-shadow: 2px 2px 0 var(--accent); }
+  .chips button:active { transform: none; box-shadow: none; }
+  .chips button[aria-pressed="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .chips button:focus-visible { outline: 2px dashed var(--hot); outline-offset: 2px; }
+
+  pre { margin-top: 22px; background: #070b17; border: 2px solid var(--line); padding: 16px; overflow-x: auto; font: 12px/1.7 var(--body); color: var(--muted); }
+  pre em { color: var(--accent); font-style: normal; }
+  pre b { color: var(--hot); font-weight: 400; }
+
+  .ground { position: fixed; inset: auto 0 0 0; height: 2px; background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px); pointer-events: none; }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <section>
+      <span class="tag">PORTFOLIO PET · WEB COMPONENT</span>
+      <h1 data-cat-perch>K <span>the</span> pixel cat</h1>
+      <p class="lede">Meet K, a tiny desk pet that lives on the bottom of the page. K <b>walks, trots and gallops</b> with a real gait, <b>jumps onto things on the page</b>, rolls over, pounces, stretches, and naps when you go quiet. Zero dependencies, ~15&nbsp;KB gzipped, one tag.</p>
+
+      <div class="readout"><small>CURRENT STATE</small><output id="state">waving</output></div>
+
+      <table data-cat-perch>
+        <thead><tr><th>DO THIS</th><th>CAT DOES</th></tr></thead>
+        <tbody>
+          <tr><td>Click once</td><td>Happy, heart pops up</td></tr>
+          <tr><td>Double click</td><td>Crouches, springs, lands</td></tr>
+          <tr><td>Click 3–5×</td><td>Gets excited</td></tr>
+          <tr><td>Click 6× fast</td><td>Gets annoyed</td></tr>
+          <tr><td>Hover</td><td>Curious head tilt</td></tr>
+          <tr><td>Drag &amp; drop</td><td>Dangles, falls with gravity. Drop it from high up and it sulks</td></tr>
+          <tr><td>Move cursor</td><td>Eyes follow; if you're far away it gallops over</td></tr>
+          <tr><td>Leave window</td><td>Sad. Waves when you return</td></tr>
+          <tr><td>Leave it alone</td><td>Wanders, hops onto headings and cards, rolls over, stretches, pounces, then naps</td></tr>
+          <tr><td><kbd>Tab</kbd> then <kbd>R</kbd> <kbd>P</kbd> <kbd>J</kbd> <kbd>O</kbd> <kbd>←</kbd> <kbd>→</kbd></td><td>Run, perch on something, jump, roll, walk. Enter pets</td></tr>
+
+        </tbody>
+      </table>
+    </section>
+
+    <aside>
+      <div class="panel" data-cat-perch>
+        <div class="chips" id="chips"></div>
+      </div>
+      <pre data-cat-perch><em>&lt;script</em> type="module" src="/pixel-cat.js"<em>&gt;&lt;/script&gt;</em>
+<em>&lt;pixel-cat</em> <b>scale</b>="3" <b>sleep-after</b>="30"<em>&gt;&lt;/pixel-cat&gt;</em>
+
+<em>// trigger from code</em>
+document.querySelector('pixel-cat').<b>react</b>('happy')</pre>
+    </aside>
+  </main>
+
+  <div class="ground" aria-hidden="true"></div>
+  <pixel-cat id="cat"></pixel-cat>
+
+  <script type="module">
+// @ts-check
+/**
+ * K the pixel cat (<pixel-cat>) — a zero-dependency, interactive pixel-art desk pet.
+ *
+ * Architecture (three layers, each one testable on its own):
+ *   1. poseFor()   state + time + gait phase  →  POSE   (plain data: eyes, legs, tail, effects)
+ *   2. rasterize() POSE                       →  pixel grid (body / ink / outline, traced automatically)
+ *   3. <pixel-cat> physics, input and a requestAnimationFrame loop that paints the grid to a canvas
+ *
+ * Why movement looks smooth: walking/trotting/galloping are driven by a gait PHASE that advances
+ * with DISTANCE travelled (not by a timer). Feet therefore never slide on the ground, and the
+ * cat accelerates and brakes through walk → trot → gallop like a real animal.
+ *
+ * Usage:
+ *   <script type="module" src="/pixel-cat.js"><\/script>
+ *   <pixel-cat></pixel-cat>                  roams along the bottom of the viewport
+ *   <pixel-cat mode="inline"></pixel-cat>    stays where you put it in your layout
+ *
+ * Attributes: mode="roam|inline"  scale="3"  sleep-after="30" (seconds)
+ * Theming: --pixel-cat-body / -ink / -outline / -accent / -shadow
+ * API: el.react('running' | 'perching' | 'rolling' | …), el.pet()
+ * Event: 'catstatechange' → event.detail.state
+ */
+
+// ── Geometry (logical pixels) ────────────────────────────────────────────────
+export const W = 61, H = 68;
+const OX = 10, OY = 22;          // where cat-space (0,0) sits inside the canvas
+const MX = W - 1;                // flip axis: mirrored pixel = MX - x
+const HEAD_CX = 12;              // head spans cat x 0..24; its centre column is 12
+const GROUND = 29;               // cat-space row of the feet's bottom pixel
+
+const BODY = 1, INK = 2, LINE = 3;   // cat-layer cell codes
+const ACCENT = 1, LIGHT = 2;         // effect-layer cell codes
+
+// ── Small math helpers ───────────────────────────────────────────────────────
+const TAU = Math.PI * 2;
+const lerp = (a, b, k) => a + (b - a) * k;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const clamp01 = (v) => clamp(v, 0, 1);
+const bez = (a, b, c, t) => (1 - t) * (1 - t) * a + 2 * (1 - t) * t * b + t * t * c;
+
+// ── Effect sprites ('#' = filled) ────────────────────────────────────────────
+const mirrorRows = (rows) => rows.map((r) => [...r].reverse().join(''));
+const SPRITES = {
+  question: ['.####.', '##..##', '....##', '...##.', '..##..', '..##..', '......', '..##..', '..##..'],
+  heart: ['.###.###.', '#########', '#########', '#########', '.#######.', '..#####..', '...###...', '....#....'],
+  zSmall: ['####', '..#.', '.#..', '####'],
+  zBig: ['#####', '...#.', '..#..', '.#...', '#####'],
+  anger: ['.#.#.', '##.##', '.....', '##.##', '.#.#.'],
+  burst: ['.#...#', '.#..#.', '.#.#..', '......', '...###'],
+  spiral: ['.###.', '#...#', '#.#.#', '#..#.', '.##..'],
+  dot1: ['##', '##'],
+  dot2: ['###', '###', '###'],
+  bubble: ['..###..', '#######', '#######', '#######', '..###..'],
+  motion: ['.#', '#.', '#.', '.#'],
+  dash: ['####'],
+};
+SPRITES.burstL = mirrorRows(SPRITES.burst);
+const FX_COLOR = { burst: ACCENT, burstL: ACCENT, spiral: ACCENT, motion: ACCENT, dash: ACCENT };
+
+// ── Timing / tuning ──────────────────────────────────────────────────────────
+/** Jump phases in ms: crouch (anticipation) → flight → landing squash. */
+export const JUMP = { A: 200, F: 520, L: 170 };
+/** Timed states return to idle after this many ms. */
+const DUR = {
+  curious: 1800, surprised: 800, happy: 1500, excited: 1500, thinking: 3600, angry: 2200,
+  waving: 1900, jumping: JUMP.A + JUMP.F + JUMP.L, landing: 200, lookaround: 2400,
+  rolling: 2200, stretching: 2400,
+};
+const STALK_MS = 800;            // how long the cat crouches before a pounce
+/** Logical px travelled per full leg cycle. stride = 2·amplitude / duty keeps stance feet from sliding. */
+const STRIDE = { walk: 5.6, trot: 12, gallop: 17 };
+const WALK_V = 12, RUN_V = 56;   // cruising speeds, logical px per second
+const GRAV = 650;                // logical px/s², used for every jump that is physics-driven
+/** Keeps the whole sprite on-screen: how far it sticks out sideways from the head centre. */
+const INSET = 17;
+
+/** States you can trigger with el.react(name). */
+export const STATES = [
+  'idle', 'curious', 'surprised', 'happy', 'excited', 'thinking', 'sad', 'angry', 'sleeping',
+  'waving', 'lookaround', 'walking', 'running', 'jumping', 'perching', 'rolling', 'stretching', 'pouncing',
+];
+
+// ── Eyes ─────────────────────────────────────────────────────────────────────
+// [first row, LEFT-eye pattern]. The right eye is the mirror image, so faces stay symmetric.
+const EYES = {
+  open: [12, ['####', '####', '####', '####']],
+  blink: [12, ['....', '....', '####', '....']],
+  happy: [12, ['....', '.##.', '#..#', '....']],
+  excited: [11, ['#...', '.#..', '..#.', '.#..', '#...']],
+  surprised: [11, ['####', '####', '####', '####', '####']],
+  angry: [12, ['##..', '####', '####', '####']],
+  sad: [13, ['..##', '####', '####']],
+  sleep: [14, ['#..#', '.##.']],
+};
+
+/**
+ * @typedef {{o:number, l:number}} Leg   o = sideways foot offset (+ = backward), l = lift off the ground
+ * @typedef {{ pose:string, dx:number, dy:number, hx:number, hy:number, eyes:string, lx:number, ly:number,
+ *   mouth:string|null, legs:Leg[], wave:number|null, s:number, bow:number, k:number,
+ *   tail:{lift:number, sway:number, puff:boolean, reach:number, floor:number},
+ *   fx:[string,number,number][], shear:number, vflip:boolean, shadow:number, shx:number,
+ *   ear:number }} Pose
+ */
+
+/** One leg's position in its cycle (u = 0..1). Stance = foot planted while the body passes over it. */
+function legCycle(u, A, duty, Hh, amp) {
+  let o, l = 0;
+  if (u < duty) o = lerp(-A, A, u / duty);                       // stance: foot slides backward under the body
+  else {
+    const s = (u - duty) / (1 - duty);                           // swing: foot lifts and reaches forward
+    o = lerp(A, -A, s); l = Math.sin(Math.PI * s) * Hh;
+  }
+  return { o: Math.round(o * amp), l: Math.round(l * amp) };
+}
+// Leg order everywhere: [front-1, front-2, hind-1, hind-2]. `ph` = each leg's offset in the cycle.
+const GAITS = {
+  walk: { A: 2, duty: 0.72, H: 2, ph: [0.25, 0.75, 0, 0.5] },    // lateral sequence: 4 separate footfalls
+  trot: { A: 3, duty: 0.5, H: 3, ph: [0, 0.5, 0.5, 0] },         // diagonal pairs move together
+};
+
+/** Stretched/gathered body used for gallop and all airborne poses. s: 0 = gathered, 1 = fully extended. */
+function gallopPose(p, s, fo, fl, ho, hl) {
+  p.pose = 'gallop'; p.s = s;
+  p.legs = [{ o: fo, l: fl }, { o: fo + 2, l: Math.max(0, fl - 1) }, { o: ho, l: hl }, { o: ho - 2, l: hl }];
+}
+
+/** Airborne pose for tau 0..1 (launch → apex → landing): stretch, tuck, then reach down for the ground. */
+function airPose(p, tau) {
+  let s, fo, fl, ho, hl;
+  if (tau < 0.5) {
+    const k = tau * 2;
+    s = lerp(1, 0.15, k); fo = -Math.round(lerp(6, 1, k)); fl = 1; ho = Math.round(lerp(6, -3, k)); hl = 2;
+  } else {
+    const k = (tau - 0.5) * 2;
+    s = lerp(0.15, 0.75, k); fo = -Math.round(lerp(1, 5, k)); fl = Math.round(lerp(2, 0, k));
+    ho = Math.round(lerp(-3, -1, k)); hl = Math.round(lerp(2, 0, k));
+  }
+  gallopPose(p, s, fo, fl, ho, hl);
+  p.hx = -Math.round(s * 2); p.tail.lift = 0.5; p.tail.reach = 0.8; p.shx = 14 + Math.round(s * 3);
+}
+
+/**
+ * Pure function: state + time → pose. No DOM, so it is unit-testable.
+ * @param {string} state
+ * @param {number} e   ms since the state began
+ * @param {number} t   global time in seconds
+ * @param {{lookX:number, lookY:number, blink:boolean, reduced:boolean, phase:number, speed:number,
+ *   gait:string, jumpH:number, vy:number, ear:number, flick:number}} c   (vy = vertical speed ÷ launch speed: +1 rising … −1 falling)
+ * @returns {Pose}
+ */
+export function poseFor(state, e, t, c) {
+  const rm = c.reduced;
+  const osc = (f, a = 1) => (rm ? 0 : Math.sin(t * f) * a);
+  const beat = (ms) => Math.floor(e / ms);
+
+  /** @type {Pose} */
+  const p = {
+    pose: 'stand', dx: 0, dy: 0, hx: 0, hy: 0, eyes: 'open', lx: c.lookX, ly: c.lookY, mouth: null,
+    legs: [0, 1, 2, 3].map(() => ({ o: 0, l: 0 })), wave: null, s: 0, bow: 0, k: t,
+    tail: { lift: 1, sway: osc(2.2, 0.9) + (rm ? 0 : c.flick * 2.6 * Math.sin(t * 28)), puff: false, reach: 1, floor: 30 },
+    fx: [], shear: 0, vflip: false, shadow: 1, shx: 14, ear: c.ear,
+  };
+  if (!rm && Math.sin(t * 2.4) > 0.55) p.hy = 1; // breathing: head dips 1px
+  /** Squash down by d px: legs shorten, body sinks, feet stay planted. */
+  const crouch = (d) => { for (const L of p.legs) L.l = d; p.dy += d; };
+
+  switch (state) {
+    case 'curious':
+      p.shear = -0.17; p.ly = -1;
+      p.fx.push(['question', 26, -4 - (beat(300) % 2)]);
+      break;
+    case 'surprised':
+      p.eyes = 'surprised'; p.mouth = 'o'; p.tail.puff = true; p.tail.sway = 0;
+      p.dy = e < 180 && !rm ? -2 : 0;
+      p.fx.push(['burst', 26, -1]);
+      break;
+    case 'happy':
+      p.eyes = 'happy'; p.mouth = 'dot'; p.tail.sway = osc(9, 1.2);
+      if (e < 1300) p.fx.push(['heart', 26, -Math.min(5, beat(220))]);
+      break;
+    case 'excited': {
+      const up = beat(110) % 2;
+      p.eyes = 'excited'; p.mouth = 'o'; p.tail.sway = osc(14, 1.4);
+      p.dy = rm ? 0 : -up * 2;
+      if (up) for (const L of p.legs) L.l = 2;
+      p.fx.push(['burst', 26, -1], ['burstL', -7, -1]);
+      break;
+    }
+    case 'thinking':
+      p.pose = 'sit'; p.hy += 1; p.lx = 1; p.ly = -1;
+      p.tail.lift = 0.25; p.tail.sway = osc(1.2, 0.6);
+      if (e > 300) p.fx.push(['dot1', 26, 6]);
+      if (e > 650) p.fx.push(['dot2', 28, 2]);
+      if (e > 1000) p.fx.push(['bubble', 30, -5]);
+      break;
+    case 'sad':
+      p.pose = 'sit'; p.hy = 2; p.eyes = 'sad'; p.tail.lift = 0; p.tail.sway = 0;
+      p.fx.push(['spiral', 21, -6 + (beat(500) % 2)]);
+      break;
+    case 'angry':
+      p.eyes = 'angry'; p.tail.puff = true; p.tail.sway = osc(16, 0.8);
+      if (!rm && e < 500) p.dx = beat(60) % 2 ? 1 : -1;
+      if (beat(260) % 2 === 0) p.fx.push(['anger', 23, -5]);
+      break;
+    case 'sleeping': {
+      const z = rm ? 0 : Math.floor(t * 1.4) % 3;
+      p.pose = 'loaf'; p.eyes = 'sleep'; p.hy = 8 + (rm ? 0 : Math.sin(t * 1.6) > 0 ? 0 : 1);
+      p.tail.lift = 0.3; p.tail.reach = 0.4; p.tail.sway = osc(0.8, 0.4); p.shx = 18;
+      p.fx.push(['zSmall', 26, 5 - z]);
+      if (z > 0) p.fx.push(['zBig', 30, 0 - z]);
+      break;
+    }
+    case 'waving':
+      p.mouth = 'dot'; p.wave = beat(140) % 2;
+      p.fx.push(['motion', -7, 19 - p.wave]);
+      break;
+    case 'lookaround':
+      p.lx = e < 800 ? -1 : e < 1600 ? 1 : 0; p.ly = 0; p.hx = p.lx;
+      break;
+
+    // ── Locomotion ──────────────────────────────────────────────────────────
+    case 'walking':
+    case 'running': {
+      const u = c.phase % 1;
+      p.lx = -1; p.ly = 0; p.hy = 0;                        // eyes look where we're heading
+      if (c.gait === 'gallop') {
+        const e1 = Math.sin(TAU * u);                       // >0 airborne & stretched, <0 gathered on the ground
+        const s = clamp01(0.5 + 0.7 * e1);
+        gallopPose(p, s, -Math.round(lerp(-1, 6, s)), Math.round(1.5 * s), Math.round(lerp(-4, 6, s)), Math.round(2.5 * s));
+        p.dy = -Math.round(Math.max(0, e1) * 3);
+        p.hx = -Math.round(s * 2); p.hy = Math.round(1 - s);
+        p.tail.lift = 0.35; p.tail.sway = Math.sin(TAU * u * 2) * 1.6;
+        p.shadow = 1 - -p.dy / 8; p.shx = 14 + Math.round(s * 3);
+        for (let k = 0; k < 3; k++) p.fx.push(['dash', 36 + ((c.phase * 14 + k * 4) % 8), 17 + k * 4]); // speed lines
+      } else {
+        const g = GAITS[c.gait];
+        const amp = c.gait === 'walk' ? clamp01(c.speed / 10) : clamp01(c.speed / 22); // legs ease in as we start moving
+        p.legs = g.ph.map((o) => legCycle((u + o) % 1, g.A, g.duty, g.H, amp));
+        p.dy = -Math.round(Math.abs(Math.sin(TAU * u)) * (c.gait === 'walk' ? 0.7 : 1.4) * amp); // body bobs twice per cycle
+        p.hx = -Math.round(amp);
+        p.tail.lift = c.gait === 'walk' ? 0.8 : 0.6;
+        p.tail.sway = Math.sin(TAU * u) * 1.5 * amp + osc(2.2, 0.9) * (1 - amp);
+      }
+      break;
+    }
+    case 'jumping': {
+      const { A, F, L } = JUMP;
+      p.lx = -1;
+      if (e < A) { crouch(Math.round(lerp(0, 2, e / A))); p.tail.sway = osc(18, 1.2); }   // wind-up
+      else if (e < A + F) {
+        const tau = (e - A) / F;
+        const h = rm ? 0 : Math.round(c.jumpH * 4 * tau * (1 - tau));                     // parabola
+        airPose(p, tau);
+        p.dy = -h; p.shadow = 1 - h / (c.jumpH + 4);
+      } else crouch((e - A - F) / L < 0.5 ? 2 : 1);                                       // landing squash
+      break;
+    }
+    case 'leaping': {                                        // physics-driven jump onto / off a page element
+      airPose(p, clamp01(0.5 - c.vy / 2));
+      p.shadow = 0; p.lx = -1;
+      break;
+    }
+    case 'pouncing': {                                       // stalk: low crouch + butt wiggle
+      crouch(2); p.hy = 1; p.lx = -1;
+      p.legs[2].o = Math.round(Math.sin(e / 45)); p.legs[3].o = -Math.round(Math.sin(e / 45));
+      p.dx = e > 250 && beat(70) % 2 ? 1 : 0;
+      p.tail.lift = 0.2; p.tail.sway = Math.sin(e / 60) * 3;
+      break;
+    }
+    case 'rolling': {                                        // lie down → flop onto side → belly-up wiggle → other side → rise
+      p.eyes = 'happy'; p.tail.lift = 0.3; p.tail.reach = 0.4; p.tail.sway = osc(3, 0.8); p.shx = 18;
+      if (e < 260) { p.pose = 'loaf'; p.hy = Math.round(lerp(1, 8, e / 260)); p.eyes = 'open'; }
+      else if (e < 560) { p.pose = 'side'; p.hy = 8; p.shear = 0.18; }
+      else if (e < 1560) { p.pose = 'back'; p.vflip = true; p.hy = 8; p.mouth = 'dot'; }
+      else if (e < 1860) { p.pose = 'side'; p.hy = 8; p.shear = 0.18; }                   // facing flips here (see element)
+      else { p.pose = 'loaf'; p.hy = Math.round(lerp(8, 1, clamp01((e - 1860) / 340))); p.eyes = 'open'; }
+      break;
+    }
+    case 'stretching': {                                     // play-bow: chest down, butt up, tail high, yawn
+      const k = e < 350 ? e / 350 : e < 1900 ? 1 : clamp01(1 - (e - 1900) / 500);
+      p.bow = k; p.hy = Math.round(6 * k); p.hx = -Math.round(2 * k);
+      p.eyes = k > 0.5 ? 'happy' : 'open'; p.mouth = k > 0.9 && e < 1700 ? 'yawn' : null;
+      p.legs[0].o = -Math.round(5 * k); p.legs[1].o = -Math.round(4 * k);
+      p.tail.sway = osc(5, 1.2) * k;
+      break;
+    }
+    case 'dragging':
+    case 'falling':
+      p.legs.forEach((L, i) => { L.l = -2; L.o = [-1, 0, 0, 1][i]; });
+      p.eyes = 'surprised'; p.mouth = 'o'; p.shadow = 0;
+      p.tail.lift = 0.1; p.tail.sway = osc(10, 1.5);
+      p.fx.push(['burst', 26, -1]);
+      break;
+    case 'landing':
+      crouch(e < 100 ? 2 : 1);
+      break;
+  }
+  if (c.blink && p.eyes === 'open') p.eyes = 'blink';
+  return p;
+}
+
+/**
+ * Pure function: pose → cell grids. `cat` gets BODY/INK/LINE codes, `fx` gets effect codes.
+ * Cat-space: head is x 0..24 / y 0..21, feet land on y = 29.
+ * @param {Pose} p  @param {Uint8Array} cat  @param {Uint8Array} fx  @param {boolean} flip
+ */
+export function rasterize(p, cat, fx, flip) {
+  cat.fill(0); fx.fill(0);
+
+  const put = (x, y, v) => {
+    const X = OX + x + p.dx, Y = OY + y + p.dy;
+    if (X < 0 || Y < 0 || X >= W || Y >= H) return;
+    const i = Y * W + X;
+    if (v === INK) { if (cat[i] === BODY) cat[i] = INK; } else cat[i] = v; // ink never leaks outside the body
+  };
+  const rect = (x0, y0, x1, y1, v = BODY) => {
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) put(x, y, v);
+  };
+
+  // Head helpers. sh(y) = per-row sideways shift (head tilt); fy() flips the head upside-down for belly-up.
+  const sh = (y) => (p.shear ? Math.round((11 - y) * p.shear) : 0);
+  const fy = (y) => (p.vflip ? 21 - y : y);
+  const head = (x0, y0, x1, y1, v = BODY) => {
+    for (let y = y0; y <= y1; y++) rect(x0 + p.hx + sh(y), fy(y) + p.hy, x1 + p.hx + sh(y), fy(y) + p.hy, v);
+  };
+  const ink = (x, y) => put(x + p.hx + sh(y), fy(y) + p.hy, INK);
+  const sym = (x0, y, x1, skipLeft = false) => { head(24 - x1, y, 24 - x0, y); if (!skipLeft) head(x0, y, x1, y); };
+
+  /** One leg: hip at row `top`, foot at row (29 - lift) shifted by `o` — angled in between so it swings from the hip. */
+  const leg = (x0, o, l, top = 25, w = 3) => {
+    const foot = GROUND - l, span = Math.max(1, foot - top);
+    for (let y = top + 1; y <= foot; y++) {
+      const sx = x0 + Math.round((o * (y - top)) / span);
+      rect(sx, y, sx + w - 1, y);
+    }
+  };
+
+  // ── 1. Body ──
+  /** @type {[number, number]} */ let base = [21, 24];     // where the tail attaches
+  switch (p.pose) {
+    case 'loaf':
+      rect(13, 20, 31, 20); rect(11, 21, 33, 21); rect(10, 22, 34, 29); put(34, 29, 0);
+      base = [34, 25];
+      break;
+    case 'side':                                           // lying on its side: loaf + limbs stretched out
+      rect(13, 20, 31, 20); rect(11, 21, 33, 21); rect(10, 22, 34, 29); put(34, 29, 0);
+      rect(-5, 27, 0, 29);                                 // fore-paw poking out past the head
+      rect(34, 22, 40, 24); rect(33, 26, 39, 28);          // hind paws
+      base = [35, 27];
+      break;
+    case 'back': {                                         // belly-up: four paws wiggling in the air
+      rect(25, 24, 38, 24); rect(22, 25, 41, 29); put(22, 29, 0); put(41, 29, 0);
+      [27, 31, 36, 40].forEach((x0, i) => {                // 2px legs + 3px mitten paws keep a 1px gap between neighbours
+        const w = Math.round(1.2 * Math.sin(p.k * 9 + i * 1.7)), len = [6, 8, 7, 9][i];
+        rect(x0 + w, 24 - len, x0 + w + 1, 24);            // leg
+        rect(x0 + w - 1, 22 - len, x0 + w + 2, 24 - len);  // mitten paw
+      });
+      base = [41, 28];
+      break;
+    }
+    case 'sit':
+      rect(7, 21, 17, 25); rect(7, 26, 9, 29); rect(12, 26, 14, 29);
+      rect(14, 23, 22, 29); put(22, 23, 0); put(22, 29, 0);
+      base = [22, 27];
+      break;
+    case 'gallop': {                                       // extended ↔ gathered (arched back)
+      const s = p.s, xr = 20 + Math.round(s * 7), arch = 1 - s;
+      for (let x = 7; x <= xr; x++) {
+        const t = (x - 7) / (xr - 7);
+        rect(x, 22 - Math.round(arch * 2 * Math.sin(Math.PI * t)), x, 26 + (s < 0.4 ? 1 : 0));
+      }
+      const hs = Math.round(s * 6);                        // hind hips slide back as the body stretches
+      [7, 11, 15 + hs, 19 + hs].forEach((x0, i) => leg(x0, p.legs[i].o, p.legs[i].l));
+      base = [xr, 23];
+      break;
+    }
+    default: {                                             // stand — also handles the play-bow (p.bow 0..1)
+      const k = p.bow, xr = 21 + Math.round(4 * k);
+      for (let x = 7; x <= xr; x++) {
+        const t = (x - 7) / Math.max(1, xr - 7);
+        rect(x, Math.round(lerp(21 + 5 * k, 21 - 3 * k, t)), x, Math.round(26 - 4 * k * t)); // back slopes up toward the hips
+      }
+      [7, 11, 15, 19].forEach((x0, i) => {
+        if (p.wave !== null && i === 0) return;            // this leg is waving instead
+        const hind = i >= 2, hip = x0 + (hind ? Math.round(4 * k) : 0);
+        const top = hind ? Math.round(26 - 4 * k * ((hip - 7) / Math.max(1, xr - 7))) - 1 : 25;
+        leg(hip, p.legs[i].o, p.legs[i].l, top);
+      });
+      if (p.wave !== null) {
+        rect(-1, 22 - p.wave, 3, 26 - p.wave); rect(4, 24, 6, 26);
+        put(-1, 22 - p.wave, 0); put(-1, 26 - p.wave, 0);
+      }
+      base = [xr, Math.round(lerp(24, 19, k))];
+    }
+  }
+
+  // ── 2. Head, ears, whiskers ──
+  [[0, 5, 8], [1, 4, 8], [2, 3, 8], [3, 2, 8]].forEach(([y, a, b]) => sym(a, y, b, p.ear > 0 && y === 0)); // ear twitch = left ear 1px shorter
+  head(1, 4, 23, 4);
+  for (let y = 5; y <= 19; y++) head(0, y, 24, y);
+  head(1, 20, 23, 20); head(3, 21, 21, 21);
+  for (const y of [14, 16, 18]) { head(-4, y, -1, y); head(25, y, 28, y); }
+
+  // ── 3. Tail: quadratic Bézier stamped with blocks (lift<0 = hanging down) ──
+  const { lift, sway, puff, reach, floor } = p.tail;
+  const d = Math.max(0, -lift), up = Math.max(0, lift);
+  const c1 = [base[0] + lerp(lerp(6, 10, up), 5, d) * reach + sway, base[1] + lerp(lerp(3, 1, up), 2, d)];
+  const c2 = [base[0] + lerp(lerp(8, 9, up), 3, d) * reach + sway * 2.2, base[1] + lerp(lerp(3, -11, up), 11, d)];
+  for (let i = 0; i <= 24; i++) {
+    const k = i / 24, x = Math.round(bez(base[0], c1[0], c2[0], k));
+    const s = puff ? (k > 0.82 ? 3 : 4) : k > 0.82 ? 2 : 3;
+    const y = Math.min(floor - s, Math.round(bez(base[1], c1[1], c2[1], k)));
+    rect(x, y, x + s - 1, y + s - 1);
+  }
+
+  // ── 4. Auto-outline: any empty cell touching the body (8-way) becomes LINE ──
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    if (cat[i]) continue;
+    outer: for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) {
+      const nx = x + ox, ny = y + oy;
+      if (nx >= 0 && ny >= 0 && nx < W && ny < H && cat[ny * W + nx] === BODY) { cat[i] = LINE; break outer; }
+    }
+  }
+
+  // ── 5. Ink: forehead ticks, whisker roots, eyes, mouth ──
+  for (const x of [10, 12, 14]) { ink(x, 4); ink(x, 5); }
+  for (const y of [14, 16, 18]) for (let x = 0; x <= 2; x++) { ink(x, y); ink(24 - x, y); }
+  const [ey, pattern] = EYES[p.eyes];
+  const gx = p.eyes === 'open' ? p.lx : 0, gy = p.eyes === 'open' ? p.ly : 0;
+  pattern.forEach((row, r) => [...row].forEach((ch, c) => {
+    if (ch !== '#') return;
+    ink(4 + c + gx, ey + r + gy); ink(20 - c + gx, ey + r + gy);
+  }));
+  if (p.mouth === 'dot') { ink(11, 17); ink(13, 17); ink(12, 18); }
+  else if (p.mouth === 'o') { for (let y = 17; y <= 18; y++) for (let x = 11; x <= 13; x++) ink(x, y); }
+  else if (p.mouth === 'yawn') { for (let y = 16; y <= 19; y++) for (let x = 10; x <= 14; x++) if (!((y === 16 || y === 19) && (x === 10 || x === 14))) ink(x, y); }
+
+  // ── 6. Effects: drawn unflipped (a "?" must never read backwards) ──
+  for (const [name, x, y] of p.fx) {
+    const rows = SPRITES[name], w = rows[0].length;
+    const X0 = flip ? W - (OX + x) - w : OX + x, Y0 = OY + y + p.dy;
+    rows.forEach((row, ry) => [...row].forEach((ch, rx) => {
+      const X = X0 + rx, Y = Y0 + ry;
+      if (ch === '#' && X >= 0 && Y >= 0 && X < W && Y < H) fx[Y * W + X] = FX_COLOR[name] || LIGHT;
+    }));
+  }
+}
+
+// ── The custom element ───────────────────────────────────────────────────────
+const DEFAULTS = {
+  body: '#ffffff', ink: '#0a0e1c', outline: '#1b2542', accent: '#8091cf', shadow: 'rgba(27,37,66,.75)',
+};
+const ANNOUNCE = {
+  happy: 'The cat purrs happily.', excited: 'The cat is very excited!', angry: 'The cat is annoyed.',
+  sleeping: 'The cat fell asleep.', surprised: 'The cat is startled.', jumping: 'The cat jumps.',
+  running: 'The cat gallops across the page.', leaping: 'The cat jumps.',
+  rolling: 'The cat rolls over.', stretching: 'The cat stretches and yawns.', pouncing: 'The cat pounces.',
+};
+const MOVING = ['walking', 'running'];
+/** Elements the cat may jump onto. Override with <pixel-cat perch="your css selector"> or perch="off". */
+const DEFAULT_PERCH = '[data-cat-perch], h1, h2, h3, img, figure, button, article, .card';
+const MAX_JUMP = 120;            // highest single jump, logical px (≈ 4 cat-heights, like a real cat)
+
+/** Turns any CSS colour string into [r,g,b,a] by letting the browser parse it. */
+function toRGBA(str, fallback) {
+  const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+  if (!ctx) return [255, 255, 255, 255];
+  ctx.fillStyle = fallback;
+  ctx.fillStyle = str || fallback;
+  ctx.fillRect(0, 0, 1, 1);
+  return [...ctx.getImageData(0, 0, 1, 1).data];
+}
+
+class PixelCat extends HTMLElement {
+  static get observedAttributes() { return ['scale', 'mode']; }
+
+  // Rendering
+  #canvas; #ctx; #img; #cat = new Uint8Array(W * H); #fx = new Uint8Array(W * H); #pal = {};
+  #bb = { x0: 0, y0: 0, x1: 0, y1: 0 };                 // tight bounds of the drawn sprite (for hit-testing)
+  // State machine
+  state = 'idle'; #since = 0; #raf = 0; #last = 0; #ac = /** @type {AbortController|null} */ (null);
+  // Position: #x = screen x of the HEAD CENTRE (so flipping direction never makes the head jump);
+  // #y = height of the feet above the viewport floor, in logical px.
+  #x = 0; #y = 0; #vx = 0; #vy = 0; #vy0 = 1; #facing = -1;
+  // Locomotion
+  #target = 0; #speed = 0; #phase = 0; #gait = 'walk'; #afterMove = /** @type {string|null} */ (null);
+  // Perching: #perch = element we are standing on; #plan = jump we are about to make; #land = where we will touch down
+  #perch = /** @type {Element|null} */ (null);
+  #plan = /** @type {{el:Element|null, tx:number}|null} */ (null);
+  #land = /** @type {{y:number, el:Element|null}|null} */ (null);
+  #jump = { h: 14, vx: 20 }; #fallFrom = 0; #rolled = false;
+  // Senses & idle life
+  #lookX = 0; #lookY = 0; #pointer = /** @type {{x:number,y:number,at:number}|null} */ (null);
+  #lastActive = 0; #nextAmbient = 0; #nextBlink = 0; #blinkUntil = 0;
+  #nextEar = 0; #earUntil = 0; #nextFlick = 0; #flickUntil = 0;
+  // Input
+  #taps = /** @type {number[]} */ ([]); #drag = /** @type {any} */ (null); #hover = false; #swallow = false; #cursor = '';
+  #reduced = false; #live; #lastTransform = '';
+
+  constructor() {
+    super();
+    const root = this.attachShadow({ mode: 'open' });
+    // pointer-events:none → the big transparent canvas never blocks clicks on your page.
+    // Hits are tested manually against the sprite's real pixels instead (see #hit).
+    root.innerHTML = `
+      <style>
+        :host { position: fixed; left: 0; bottom: 0; z-index: 2147483000; display: block; pointer-events: none;
+          user-select: none; -webkit-user-select: none; outline: none; }
+        :host([mode="inline"]) { position: relative; display: inline-block; z-index: auto; }
+        canvas { display: block; image-rendering: crisp-edges; image-rendering: pixelated; }
+        :host(:focus-visible) canvas { outline: 2px dashed var(--pixel-cat-accent, ${DEFAULTS.accent}); outline-offset: -8px; }
+        .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+      </style>
+      <canvas width="${W}" height="${H}"></canvas><span class="sr" aria-live="polite"></span>`;
+    this.#canvas = /** @type {HTMLCanvasElement} */ (root.querySelector('canvas'));
+    this.#ctx = /** @type {CanvasRenderingContext2D} */ (this.#canvas.getContext('2d'));
+    this.#img = this.#ctx.createImageData(W, H);
+    this.#live = /** @type {HTMLElement} */ (root.querySelector('.sr'));
+  }
+
+  get #roam() { return this.getAttribute('mode') !== 'inline'; }
+  get #scale() { return clamp(Number(this.getAttribute('scale')) || 3, 1, 12); }
+  /** Head-centre column inside the canvas (changes when the sprite is mirrored). */
+  get #anchor() { return this.#facing === 1 ? MX - (OX + HEAD_CX) : OX + HEAD_CX; }
+  /** Screen y where the cat's feet touch a surface whose top edge is at `top`. */
+  #heightOf(top) { return (innerHeight - top) / this.#scale - 2; }
+  /** Allowed range for the head centre: the whole viewport, or just the top of the element we're standing on. */
+  #range() {
+    const sc = this.#scale, m = INSET * sc, lo = m, hi = Math.max(m, innerWidth - m);
+    if (this.#perch?.isConnected) {
+      const r = this.#perch.getBoundingClientRect(), a = Math.max(lo, r.left + 14 * sc), b = Math.min(hi, r.right - 14 * sc);
+      return a <= b ? [a, b] : [(a + b) / 2, (a + b) / 2];
+    }
+    return [lo, hi];
+  }
+
+  connectedCallback() {
+    this.#ac = new AbortController();
+    const on = { signal: this.#ac.signal };
+    if (!this.hasAttribute('tabindex')) this.tabIndex = 0;
+    this.setAttribute('role', 'button');
+    if (!this.hasAttribute('aria-label')) this.setAttribute('aria-label', 'K the pixel cat. Enter pets it, arrow keys walk, R runs, P perches, J jumps, O rolls over.');
+    this.#applyScale(); this.#readPalette();
+    const mq = matchMedia('(prefers-reduced-motion: reduce)');
+    this.#reduced = mq.matches;
+    mq.addEventListener('change', () => { this.#reduced = mq.matches; }, on);
+
+    this.#x = this.#range()[1] - 50 * this.#scale;
+    this.addEventListener('keydown', this.#onKey, on);
+    // Window-level pointer handling (capture, so we see events before the page does)
+    window.addEventListener('pointerdown', this.#onDown, { ...on, capture: true });
+    window.addEventListener('pointermove', this.#onMove, { ...on, passive: true });
+    window.addEventListener('pointerup', this.#onUp, on);
+    window.addEventListener('pointercancel', this.#onUp, on);
+    window.addEventListener('touchstart', (e) => { const t = e.touches[0]; if (t && this.#hit(t.clientX, t.clientY)) e.preventDefault(); }, { ...on, passive: false, capture: true });
+    window.addEventListener('click', (e) => { if (this.#swallow) { e.stopPropagation(); e.preventDefault(); this.#swallow = false; } }, { ...on, capture: true });
+    window.addEventListener('resize', () => { this.#x = clamp(this.#x, ...this.#range()); }, on);
+    document.addEventListener('mouseout', (e) => {
+      if (!e.relatedTarget && !['sleeping', 'dragging', 'falling', 'leaping'].includes(this.state)) this.#set('sad');
+    }, on);
+
+    const now = performance.now();
+    this.#lastActive = now; this.#last = now;
+    this.#nextBlink = now + 1500; this.#nextAmbient = now + 6000; this.#nextEar = now + 3000; this.#nextFlick = now + 6000;
+    this.#set('waving'); // say hi on arrival
+    this.#raf = requestAnimationFrame(this.#frame);
+  }
+
+  disconnectedCallback() {
+    this.#ac?.abort(); cancelAnimationFrame(this.#raf); this.#setCursor('');
+  }
+  attributeChangedCallback() { if (this.isConnected) { this.#applyScale(); this.#applyTransform(true); } }
+
+  // ── Public API ──
+  /** Trigger a behaviour, e.g. el.react('perching') makes the cat jump onto something on the page. */
+  react(name) {
+    const [lo, hi] = this.#range();
+    switch (name) {
+      case 'walking': return this.#goTo(lo + Math.random() * (hi - lo), false);
+      case 'running': return this.#goTo(this.#x < (lo + hi) / 2 ? hi : lo, true);
+      case 'perching': return this.#goPerch() || this.#startJump(14, 22);   // nothing to jump on → a plain hop
+      case 'jumping': return this.#startJump(14, 22);
+      default: if (STATES.includes(name)) this.#set(name);
+    }
+  }
+  pet() { this.#tap(); }
+
+  // ── Internals: setup ──
+  #applyScale() {
+    const sc = this.#scale;
+    this.#canvas.style.width = `${W * sc}px`; this.#canvas.style.height = `${H * sc}px`;
+    // Push the host below the viewport so the cat's FEET (not the canvas bottom) sit on the screen edge
+    if (this.#roam) this.style.bottom = `${-(H - (OY + 32)) * sc}px`; else this.style.bottom = '';
+  }
+  #readPalette() {
+    const cs = getComputedStyle(this);
+    for (const k of Object.keys(DEFAULTS)) this.#pal[k] = toRGBA(cs.getPropertyValue(`--pixel-cat-${k}`).trim(), DEFAULTS[k]);
+  }
+  #set(state) {
+    if (!MOVING.includes(state)) this.#speed = 0;
+    this.state = state; this.#since = performance.now(); this.#rolled = false;
+    if (ANNOUNCE[state]) this.#live.textContent = ANNOUNCE[state];
+    this.dispatchEvent(new CustomEvent('catstatechange', { detail: { state } }));
+  }
+
+  // ── Internals: behaviours ──
+  /** Walk or run to head-centre x. Short trips walk, long trips gallop. */
+  #goTo(x, run = null, after = null) {
+    if (!this.#roam || this.#reduced) return;
+    this.#target = clamp(x, ...this.#range());
+    const dist = Math.abs(this.#target - this.#x);
+    if (dist < 6 * this.#scale) { if (after === 'perch') this.#prepJump(); return; }
+    this.#facing = this.#target > this.#x ? 1 : -1;
+    this.#afterMove = after;
+    this.#set((run ?? dist / this.#scale > 110) ? 'running' : 'walking');
+  }
+  #startJump(h, vx) { this.#plan = null; this.#jump = { h, vx }; this.#set('jumping'); }
+
+  /** Elements on the page the cat could land on right now. */
+  #findPerches() {
+    const sel = this.getAttribute('perch') ?? DEFAULT_PERCH;
+    if (sel === 'off' || !this.#roam || this.#reduced) return [];
+    const sc = this.#scale, out = [];
+    let nodes; try { nodes = document.querySelectorAll(sel); } catch { return []; }   // bad selector → no perches, no crash
+    for (const el of nodes) {
+      if (el === this.#perch || el === this || el.contains(this) || this.contains(el)) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 30 * sc || r.height < 6 || r.left > innerWidth || r.right < 0) continue;
+      if (r.top < 36 * sc || r.top > innerHeight - 4 * sc) continue;                  // head would clip the top / it's at floor level
+      const ty = this.#heightOf(r.top);
+      if (ty - this.#y > MAX_JUMP) continue;                                           // too high for one jump
+      out.push({ el, r, ty });
+    }
+    return out;
+  }
+  /** Pick a surface, walk next to it if needed, then jump. Returns false when there is nothing to jump on. */
+  #goPerch() {
+    const list = this.#findPerches();
+    if (!list.length) return false;
+    const { el, r } = list[Math.floor(Math.random() * list.length)], sc = this.#scale;
+    const a = r.left + 14 * sc, b = r.right - 14 * sc;
+    const tx = clamp(a < b ? a + Math.random() * (b - a) : (r.left + r.right) / 2, INSET * sc, innerWidth - INSET * sc);
+    this.#plan = { el, tx };
+    const reach = 50 * sc, dx = tx - this.#x;                                          // longest comfortable take-off distance
+    if (Math.abs(dx) > reach) this.#goTo(tx - Math.sign(dx) * reach * 0.6, null, 'perch');
+    else this.#prepJump();
+    return true;
+  }
+  /** Hop off whatever we're standing on, onto the floor. */
+  #hopDown() {
+    if (!this.#perch) return;
+    const [lo, hi] = this.#range(), sc = this.#scale;
+    const dir = Math.random() < 0.5 ? -1 : 1, edge = dir < 0 ? lo : hi;
+    this.#plan = { el: null, tx: clamp(edge + dir * (28 + Math.random() * 40) * sc, INSET * sc, innerWidth - INSET * sc) };
+    this.#goTo(edge, false, 'perch');                                                  // stroll to the edge, then jump
+  }
+  /** Face the target and crouch; the actual launch happens when the crouch ends (see #update). */
+  #prepJump() {
+    if (!this.#plan) return;
+    this.#facing = this.#plan.tx >= this.#x ? 1 : -1;
+    this.#jump = { h: 14, vx: 0 }; this.#set('jumping');
+  }
+  /**
+   * Ballistic launch: choose an apex a little above the higher of {here, target}, then solve
+   * the launch speed and horizontal speed so the arc lands exactly on the target surface.
+   */
+  #launch() {
+    const plan = this.#plan; this.#plan = null;
+    if (!plan) return;
+    const sc = this.#scale;
+    const ty = plan.el?.isConnected ? this.#heightOf(plan.el.getBoundingClientRect().top) : 0;
+    const apex = Math.max(this.#y, ty) + 8;
+    const vy = Math.sqrt(2 * GRAV * (apex - this.#y));
+    const T = vy / GRAV + Math.sqrt(2 * (apex - ty) / GRAV);                           // time up + time down
+    this.#vy0 = vy; this.#vy = vy; this.#vx = (plan.tx - this.#x) / sc / T;
+    this.#land = { y: ty, el: plan.el?.isConnected ? plan.el : null };
+    this.#perch = null; this.#fallFrom = 0;
+    this.#set('leaping');
+  }
+  #tap() {
+    const now = performance.now();
+    this.#lastActive = now;
+    if (this.state === 'sleeping') { this.#taps = []; return this.#set('surprised'); }
+    // Escalation: 1 tap = happy, 2 = jump, 3–5 = excited, 6 quick taps = angry
+    this.#taps = this.#taps.filter((t) => now - t < 1400); this.#taps.push(now);
+    const n = this.#taps.length;
+    if (n >= 6) { this.#taps = []; this.#set('angry'); }
+    else if (n >= 3) this.#set('excited');
+    else if (n === 2) this.#startJump(14, 18);
+    else this.#set('happy');
+  }
+  /** Idle "life": chase the cursor, or pick a random cat behaviour. */
+  #ambient(now) {
+    const roam = this.#roam && !this.#reduced, ptr = this.#pointer, up = !!this.#perch;
+    if (roam && !up && ptr && now - ptr.at < 2500 && Math.abs(ptr.x - this.#x) > 220 && Math.random() < 0.45) return this.#goTo(ptr.x);
+    const [lo, hi] = this.#range();
+    const pick = [
+      [roam ? 0.22 : 0, () => this.#goTo(lo + Math.random() * (hi - lo), false)],
+      [roam && !up ? 0.08 : 0, () => this.#goTo(this.#x < (lo + hi) / 2 ? hi : lo, true)],
+      [roam ? (up ? 0.16 : 0.18) : 0, () => this.#goPerch() || this.#set('lookaround')],   // jump onto something
+      [up ? 0.18 : 0, () => this.#hopDown()],
+      [roam && !up ? 0.06 : 0, () => { if (ptr) this.#facing = ptr.x > this.#x ? 1 : -1; this.#set('pouncing'); }],
+      [0.07, () => this.#set('rolling')], [0.08, () => this.#set('stretching')],
+      [up ? 0 : 0.05, () => this.#startJump(14, roam ? 22 : 0)], [0.08, () => this.#set('thinking')],
+      [0.10, () => this.#set('lookaround')], [0.05, () => this.#set('waving')],
+    ];
+    let r = Math.random() * pick.reduce((a, [w]) => a + w, 0);
+    for (const [w, fn] of pick) { if ((r -= w) <= 0) return fn(); }
+  }
+
+  // ── Internals: loop ──
+  #frame = (now) => {
+    const dt = Math.min(0.05, (now - this.#last) / 1000);   // cap dt so a background tab doesn't teleport the cat
+    this.#last = now;
+    this.#update(now, dt); this.#draw(now);
+    this.#raf = requestAnimationFrame(this.#frame);
+  };
+
+  #update(now, dt) {
+    const e = now - this.#since, sc = this.#scale;
+    if (now > this.#nextBlink) { this.#blinkUntil = now + 140; this.#nextBlink = now + 2200 + Math.random() * 3500; }
+    if (now > this.#nextEar) { this.#earUntil = now + 160; this.#nextEar = now + 2500 + Math.random() * 5000; }
+    if (now > this.#nextFlick) { this.#flickUntil = now + 420; this.#nextFlick = now + 4000 + Math.random() * 8000; }
+
+    // Riding a page element: stay glued to its top edge while the page scrolls; fall if it leaves the screen.
+    if (this.#perch && !['leaping', 'falling', 'dragging'].includes(this.state)) {
+      const el = this.#perch, r = el.isConnected ? el.getBoundingClientRect() : null;
+      if (!r || r.top < 32 * sc || r.top > innerHeight - 4 * sc || r.width < 20 * sc) {
+        this.#perch = null; this.#fallFrom = 0; this.#vy = 0; this.#afterMove = null; this.#plan = null; this.#set('falling');
+      } else this.#y = this.#heightOf(r.top);
+      this.#x = clamp(this.#x, ...this.#range());
+    }
+
+    const d = DUR[this.state];
+    if (d && e > d) {
+      this.#set(this.state === 'landing' && this.#fallFrom > 60 ? 'angry' : 'idle');   // dropped from high up? rude.
+      this.#fallFrom = 0; this.#nextAmbient = now + 4000 + Math.random() * 5000;
+    }
+
+    switch (this.state) {
+      case 'idle': {
+        const sleepAfter = (Number(this.getAttribute('sleep-after')) || 30) * 1000;
+        if (now - this.#lastActive > sleepAfter) this.#set('sleeping');
+        else if (now > this.#nextAmbient) this.#ambient(now);
+        break;
+      }
+      case 'walking': case 'running': this.#moveStep(dt); break;
+      case 'jumping':
+        if (this.#plan && e >= JUMP.A) this.#launch();                               // crouch finished → real jump onto the target
+        else if (this.#roam && !this.#reduced && e > JUMP.A && e < JUMP.A + JUMP.F) { // plain hop: drift forward during flight only
+          this.#x = clamp(this.#x + this.#facing * this.#jump.vx * sc * dt, ...this.#range());
+        }
+        break;
+      case 'pouncing': if (e > STALK_MS) this.#startJump(12, 85); break;
+      case 'rolling':
+        if (e >= 1560 && !this.#rolled) { this.#rolled = true; this.#facing *= -1; }   // we ended up on the other side
+        break;
+      case 'leaping': case 'falling': {
+        const land = this.state === 'leaping' ? this.#land : null;
+        if (land?.el?.isConnected) land.y = this.#heightOf(land.el.getBoundingClientRect().top);   // the page may have scrolled mid-air
+        const floor = land ? land.y : 0;
+        this.#vy -= GRAV * dt; this.#y += this.#vy * dt;
+        if (land) this.#x = clamp(this.#x + this.#vx * sc * dt, INSET * sc, Math.max(INSET * sc, innerWidth - INSET * sc));
+        if (this.#vy < 0 && this.#y <= floor) {                                      // touchdown
+          this.#y = floor; this.#vy = 0; this.#vx = 0;
+          this.#perch = land?.el ?? null; this.#land = null;
+          this.#x = clamp(this.#x, ...this.#range());
+          this.#set('landing');
+        }
+        break;
+      }
+    }
+    this.#applyTransform();
+  }
+
+  /** Accelerate, cruise, brake — and advance the gait phase by DISTANCE so feet never slide. */
+  #moveStep(dt) {
+    const sc = this.#scale, run = this.state === 'running';
+    const vT = run ? RUN_V : WALK_V, acc = run ? 110 : 40, dec = run ? 130 : 70;
+    const dist = this.#target - this.#x, left = Math.abs(dist) / sc;
+    const want = Math.min(vT, Math.sqrt(2 * dec * left) + 1.5);       // fastest speed that still lets us stop in time
+    this.#speed += clamp(want - this.#speed, -dec * dt, acc * dt);
+    const s = this.#speed, g = this.#gait;                            // gait switches use hysteresis: no flicker at thresholds
+    if (g === 'walk' && s > 20) this.#gait = 'trot';
+    else if (g === 'trot') { if (s > 44) this.#gait = 'gallop'; else if (s < 15) this.#gait = 'walk'; }
+    else if (g === 'gallop' && s < 38) this.#gait = 'trot';
+    this.#phase = (this.#phase + (s * dt) / STRIDE[this.#gait]) % 1;
+    const step = s * sc * dt;
+    if (step >= Math.abs(dist) || left < 0.4) {
+      this.#x = this.#target; this.#speed = 0;
+      const after = this.#afterMove; this.#afterMove = null;
+      if (after === 'perch') return this.#prepJump();
+      this.#set('idle'); this.#nextAmbient = performance.now() + 3000 + Math.random() * 4000;
+    } else this.#x += Math.sign(dist) * step;
+  }
+
+  #applyTransform(force = false) {
+    if (!this.#roam) { if (force || this.#lastTransform) { this.style.transform = ''; this.#lastTransform = ''; } return; }
+    const sc = this.#scale, dpr = devicePixelRatio || 1, snap = (v) => Math.round(v * dpr) / dpr; // snap to device pixels
+    const tf = `translate3d(${snap(this.#x - this.#anchor * sc)}px, ${snap(-this.#y * sc)}px, 0)`;
+    if (force || tf !== this.#lastTransform) { this.style.transform = tf; this.#lastTransform = tf; }
+  }
+
+  #draw(now) {
+    const flip = this.#facing === 1;                                  // the sprite natively faces left
+    const p = poseFor(this.state, now - this.#since, now / 1000, {
+      lookX: this.#lookX, lookY: this.#lookY, blink: now < this.#blinkUntil, reduced: this.#reduced,
+      phase: this.#phase, speed: this.#speed, gait: this.#gait,
+      jumpH: this.#jump.h, vy: this.#vy / (this.#vy0 || 1), ear: now < this.#earUntil ? 1 : 0, flick: now < this.#flickUntil ? 1 : 0,
+    });
+    if (flip) { p.lx = -p.lx; p.hx = -p.hx; }                         // offsets are drawn pre-flip, so mirror them
+    rasterize(p, this.#cat, this.#fx, flip);
+
+    const data = this.#img.data; data.fill(0);
+    const px = (x, y, c) => {
+      if (x < 0 || y < 0 || x >= W || y >= H) return;
+      const o = (y * W + x) * 4; data[o] = c[0]; data[o + 1] = c[1]; data[o + 2] = c[2]; data[o + 3] = c[3];
+    };
+    if (p.shadow > 0) {
+      const rx = 11 * p.shadow, cy = OY + 31, cx = OX + p.shx;
+      for (let dy = -1; dy <= 1; dy++) for (let x = 0; x < W; x++) {
+        if (((x - cx) / rx) ** 2 + (dy / 1.6) ** 2 <= 1) px(flip ? MX - x : x, cy + dy, this.#pal.shadow);
+      }
+    }
+    const colors = [null, this.#pal.body, this.#pal.ink, this.#pal.outline];
+    let x0 = W, y0 = H, x1 = 0, y1 = 0;
+    for (let i = 0; i < this.#cat.length; i++) {
+      const v = this.#cat[i]; if (!v) continue;
+      const x = flip ? MX - (i % W) : i % W, y = (i / W) | 0;
+      px(x, y, colors[v]);
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    }
+    this.#bb = { x0, y0, x1, y1 };
+    for (let i = 0; i < this.#fx.length; i++) {
+      const v = this.#fx[i]; if (v) px(i % W, (i / W) | 0, v === ACCENT ? this.#pal.accent : this.#pal.body);
+    }
+    this.#ctx.putImageData(this.#img, 0, 0);
+  }
+
+  // ── Internals: input ──
+  /** Canvas top-left on screen. In roam mode this is pure math (no layout reads on every mouse move). */
+  #origin() {
+    const sc = this.#scale;
+    if (this.#roam) return { left: this.#x - this.#anchor * sc, top: innerHeight - (OY + 32) * sc - this.#y * sc };
+    const r = this.#canvas.getBoundingClientRect(); return { left: r.left, top: r.top };
+  }
+  /** Is this screen point on the cat? Tested against the sprite's tight bounds, not the whole canvas. */
+  #hit(cx, cy) {
+    const o = this.#origin(), sc = this.#scale, b = this.#bb;
+    const x = (cx - o.left) / sc, y = (cy - o.top) / sc;
+    return x >= b.x0 - 1 && x <= b.x1 + 1 && y >= b.y0 - 1 && y <= b.y1 + 1;
+  }
+  #setCursor(c) { if (this.#cursor !== c) { this.#cursor = c; document.documentElement.style.cursor = c; } }
+
+  #onMove = (/** @type {PointerEvent} */ e) => {
+    const now = performance.now(), sc = this.#scale, o = this.#origin();
+    this.#pointer = { x: e.clientX, y: e.clientY, at: now }; this.#lastActive = now;
+    const dx = e.clientX - this.#x, dy = e.clientY - (o.top + (OY + 12) * sc);   // where is the cursor relative to the head?
+    this.#lookX = dx < -40 ? -1 : dx > 40 ? 1 : 0; this.#lookY = dy < -60 ? -1 : dy > 60 ? 1 : 0;
+    if (this.state === 'sad') this.#set('waving');                                // you came back!
+
+    const d = this.#drag;
+    if (d && d.id === e.pointerId) {
+      if (!d.moved && (!this.#roam || Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 6)) return;   // small jitter = still a tap
+      if (!d.moved) { d.moved = true; this.#perch = null; this.#plan = null; this.#land = null; this.#set('dragging'); }
+      this.#x = clamp(d.x0 + (e.clientX - d.sx), ...this.#range());
+      this.#y = Math.max(0, d.y0 + (d.sy - e.clientY) / sc);
+      this.#setCursor('grabbing'); return;
+    }
+    const hit = this.#hit(e.clientX, e.clientY);
+    this.#setCursor(hit ? 'grab' : '');
+    if (hit && !this.#hover && ['idle', 'lookaround'].includes(this.state)) this.#set('curious');
+    else if (hit && !this.#hover && this.state === 'sleeping' && e.pointerType === 'mouse') this.#set('surprised');
+    this.#hover = hit;
+  };
+
+  #onDown = (/** @type {PointerEvent} */ e) => {
+    if ((e.pointerType === 'mouse' && e.button !== 0) || !this.#hit(e.clientX, e.clientY)) return;
+    e.preventDefault();                                                          // also stops text selection while dragging
+    this.#drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, x0: this.#x, y0: this.#y, moved: false };
+  };
+
+  #onUp = (/** @type {PointerEvent} */ e) => {
+    const d = this.#drag;
+    if (!d || d.id !== e.pointerId) return;
+    this.#drag = null; this.#swallow = true; setTimeout(() => { this.#swallow = false; }, 60);   // don't click whatever is underneath
+    this.#setCursor(this.#hit(e.clientX, e.clientY) ? 'grab' : '');
+    if (d.moved) {
+      this.#fallFrom = this.#y; this.#vy = 0; this.#vx = 0;
+      this.#set(this.#y > 1 ? 'falling' : 'landing');
+    } else if (e.type === 'pointerup') this.#tap();
+  };
+
+  #onKey = (/** @type {KeyboardEvent} */ e) => {
+    this.#lastActive = performance.now();
+    const k = e.key.toLowerCase();
+    if (k === 'enter' || k === ' ') { e.preventDefault(); this.#tap(); }
+    else if (k === 'arrowleft' || k === 'arrowright') {
+      e.preventDefault(); this.#goTo(this.#x + (k === 'arrowleft' ? -140 : 140), false);
+    } else if (k === 'j') this.#startJump(14, 22);
+    else if (k === 'p') this.react('perching');
+    else if (k === 'r') this.react('running');
+    else if (k === 'o') this.#set('rolling');
+  };
+}
+
+// Guard keeps hot-reload (Next.js Fast Refresh) from throwing "already defined"
+if (typeof customElements !== 'undefined' && !customElements.get('pixel-cat')) {
+  customElements.define('pixel-cat', PixelCat);
+}
+
+
+    const cat = document.getElementById('cat');
+    const out = document.getElementById('state');
+    const chips = document.getElementById('chips');
+    const LABEL = { lookaround: 'look around' };
+    for (const s of STATES) {
+      const b = document.createElement('button');
+      b.textContent = LABEL[s] || s;
+      b.dataset.state = s;
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', () => cat.react(s));
+      chips.append(b);
+    }
+    cat.addEventListener('catstatechange', (e) => {
+      out.textContent = e.detail.state;
+      for (const b of chips.children) b.setAttribute('aria-pressed', String(b.dataset.state === e.detail.state));
+    });
+  </script>
+</body>
+</html>

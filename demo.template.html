@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>K the pixel cat — interactive portfolio pet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0b1020; --bg-2: #10172d; --line: #1e2847; --text: #dfe4f3; --muted: #7c86a8;
+    --accent: #8091cf; --hot: #f5f7fc;
+    --display: 'Silkscreen', ui-monospace, monospace;
+    --body: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { min-height: 100%; }
+  body {
+    background:
+      radial-gradient(circle at 1px 1px, #1a2442 1px, transparent 0) 0 0 / 22px 22px,
+      var(--bg);
+    color: var(--text); font: 14px/1.6 var(--body);
+    min-height: 100vh; padding: clamp(24px, 6vw, 72px) clamp(20px, 6vw, 80px) 220px;
+  }
+  .wrap { max-width: 1040px; display: grid; gap: 48px; grid-template-columns: 1.15fr 1fr; align-items: start; }
+  @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } }
+
+  .tag { font: 700 11px var(--display); letter-spacing: .14em; color: var(--accent); display: inline-flex; gap: 10px; align-items: center; }
+  .tag::before { content: ''; width: 8px; height: 8px; background: var(--accent); box-shadow: 8px 0 0 var(--bg), 16px 0 0 var(--accent); margin-right: 16px; }
+  h1 { font: 700 clamp(44px, 8vw, 92px)/.9 var(--display); letter-spacing: -.02em; margin: 18px 0 22px; color: var(--hot); }
+  h1 span { color: var(--accent); }
+  .lede { color: var(--muted); max-width: 46ch; }
+  .lede b { color: var(--text); font-weight: 600; }
+
+  .readout { margin-top: 32px; display: flex; align-items: baseline; gap: 14px; border-top: 2px solid var(--line); padding-top: 18px; }
+  .readout small { font: 400 11px var(--display); color: var(--muted); letter-spacing: .12em; }
+  .readout output { font: 700 28px var(--display); color: var(--hot); }
+  .readout output::after { content: '_'; animation: caret 1s steps(1) infinite; color: var(--accent); }
+  @keyframes caret { 50% { opacity: 0; } }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 28px; }
+  th { text-align: left; font: 400 11px var(--display); letter-spacing: .12em; color: var(--muted); padding: 0 0 10px; }
+  td { padding: 9px 0; border-top: 1px dashed var(--line); vertical-align: top; }
+  td:first-child { color: var(--hot); white-space: nowrap; padding-right: 20px; }
+  td:last-child { color: var(--muted); }
+  kbd { font: 600 11px var(--body); border: 1px solid var(--line); border-bottom-width: 3px; padding: 1px 6px; border-radius: 4px; color: var(--text); }
+
+  .panel { background: var(--bg-2); border: 2px solid var(--line); padding: 22px; position: relative; }
+  .panel::before { content: 'STATES'; position: absolute; top: -9px; left: 16px; background: var(--bg); padding: 0 8px; font: 400 11px var(--display); letter-spacing: .14em; color: var(--accent); }
+  .chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+  .chips button {
+    font: 400 12px var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--text);
+    background: transparent; border: 2px solid var(--line); padding: 10px 8px; cursor: pointer; text-align: left;
+    transition: transform .12s steps(2), border-color .12s, background .12s;
+  }
+  .chips button:hover { border-color: var(--accent); transform: translate(-2px, -2px); box-shadow: 2px 2px 0 var(--accent); }
+  .chips button:active { transform: none; box-shadow: none; }
+  .chips button[aria-pressed="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .chips button:focus-visible { outline: 2px dashed var(--hot); outline-offset: 2px; }
+
+  pre { margin-top: 22px; background: #070b17; border: 2px solid var(--line); padding: 16px; overflow-x: auto; font: 12px/1.7 var(--body); color: var(--muted); }
+  pre em { color: var(--accent); font-style: normal; }
+  pre b { color: var(--hot); font-weight: 400; }
+
+  .ground { position: fixed; inset: auto 0 0 0; height: 2px; background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px); pointer-events: none; }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <section>
+      <span class="tag">PORTFOLIO PET · WEB COMPONENT</span>
+      <h1 data-cat-perch>K <span>the</span> pixel cat</h1>
+      <p class="lede">Meet K, a tiny desk pet that lives on the bottom of the page. K <b>walks, trots and gallops</b> with a real gait, <b>jumps onto things on the page</b>, rolls over, pounces, stretches, and naps when you go quiet. Zero dependencies, ~15&nbsp;KB gzipped, one tag.</p>
+
+      <div class="readout"><small>CURRENT STATE</small><output id="state">waving</output></div>
+
+      <table data-cat-perch>
+        <thead><tr><th>DO THIS</th><th>CAT DOES</th></tr></thead>
+        <tbody>
+          <tr><td>Click once</td><td>Happy, heart pops up</td></tr>
+          <tr><td>Double click</td><td>Crouches, springs, lands</td></tr>
+          <tr><td>Click 3–5×</td><td>Gets excited</td></tr>
+          <tr><td>Click 6× fast</td><td>Gets annoyed</td></tr>
+          <tr><td>Hover</td><td>Curious head tilt</td></tr>
+          <tr><td>Drag &amp; drop</td><td>Dangles, falls with gravity. Drop it from high up and it sulks</td></tr>
+          <tr><td>Move cursor</td><td>Eyes follow; if you're far away it gallops over</td></tr>
+          <tr><td>Leave window</td><td>Sad. Waves when you return</td></tr>
+          <tr><td>Leave it alone</td><td>Wanders, hops onto headings and cards, rolls over, stretches, pounces, then naps</td></tr>
+          <tr><td><kbd>Tab</kbd> then <kbd>R</kbd> <kbd>P</kbd> <kbd>J</kbd> <kbd>O</kbd> <kbd>←</kbd> <kbd>→</kbd></td><td>Run, perch on something, jump, roll, walk. Enter pets</td></tr>
+
+        </tbody>
+      </table>
+    </section>
+
+    <aside>
+      <div class="panel" data-cat-perch>
+        <div class="chips" id="chips"></div>
+      </div>
+      <pre data-cat-perch><em>&lt;script</em> type="module" src="/pixel-cat.js"<em>&gt;&lt;/script&gt;</em>
+<em>&lt;pixel-cat</em> <b>scale</b>="3" <b>sleep-after</b>="30"<em>&gt;&lt;/pixel-cat&gt;</em>
+
+<em>// trigger from code</em>
+document.querySelector('pixel-cat').<b>react</b>('happy')</pre>
+    </aside>
+  </main>
+
+  <div class="ground" aria-hidden="true"></div>
+  <pixel-cat id="cat"></pixel-cat>
+
+  <script type="module">
+/*__PIXEL_CAT__*/
+
+    const cat = document.getElementById('cat');
+    const out = document.getElementById('state');
+    const chips = document.getElementById('chips');
+    const LABEL = { lookaround: 'look around' };
+    for (const s of STATES) {
+      const b = document.createElement('button');
+      b.textContent = LABEL[s] || s;
+      b.dataset.state = s;
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', () => cat.react(s));
+      chips.append(b);
+    }
+    cat.addEventListener('catstatechange', (e) => {
+      out.textContent = e.detail.state;
+      for (const b of chips.children) b.setAttribute('aria-pressed', String(b.dataset.state === e.detail.state));
+    });
+  </script>
+</body>
+</html>

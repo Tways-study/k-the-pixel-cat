@@ -1,0 +1,22 @@
+{
+  "name": "pixel-cat",
+  "version": "1.0.0",
+  "description": "K the pixel cat: an interactive pixel-art cat for digital and web portfolios. One web component, zero dependencies.",
+  "keywords": ["pixel-art", "web-component", "custom-element", "portfolio", "pet", "canvas", "nextjs", "react"],
+  "license": "MIT",
+  "author": "Theodore Samuel M. Navarro",
+  "type": "module",
+  "main": "./pixel-cat.js",
+  "module": "./pixel-cat.js",
+  "exports": {
+    ".": "./pixel-cat.js",
+    "./react": "./PixelCat.tsx"
+  },
+  "bin": { "pixel-cat": "./bin/cli.mjs" },
+  "files": ["pixel-cat.js", "PixelCat.tsx", "bin", "README.md", "LICENSE"],
+  "sideEffects": true,
+  "repository": { "type": "git", "url": "git+https://github.com/Tways-study/pixel-cat.git" },
+  "homepage": "https://github.com/Tways-study/pixel-cat#readme",
+  "bugs": { "url": "https://github.com/Tways-study/pixel-cat/issues" },
+  "engines": { "node": ">=18" }
+}
