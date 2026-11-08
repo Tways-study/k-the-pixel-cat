@@ -39,13 +39,14 @@ That is the fastest way to try it. For Next.js, React, Astro, Vue, WordPress and
 - **18 states.** idle, curious, surprised, happy, excited, thinking, sad, angry, sleeping, waving, lookaround, walking, running, jumping, perching, rolling, stretching, pouncing.
 - **Reacts to you.** Eyes follow the cursor, it gallops toward a far-away pointer, gets curious on hover, sad when the mouse leaves the window, and sulks if you drop it from high up.
 - **Never blocks your page.** The canvas is `pointer-events: none`. Hits are tested against the sprite's real pixels, so only the cat itself is clickable.
-- **Three colours.** The classic white cat, a solid orange cat, or a calico. Pick one with `color="…"` and switch any time.
+- **Three colours.** The classic white cat, a solid orange cat, or a calico. Pick one with `color="…"` and switch any time. See [Colour](#colour).
+- **You set how often it perches.** `perch-rate` goes from `never` to `often`. See [Jumping onto page elements](#jumping-onto-page-elements).
 - **Themeable** with CSS variables.
 - **Accessible.** Keyboard controls, screen-reader announcements, and `prefers-reduced-motion` support.
 
 ## Getting started
 
-Three steps: **install**, **add the tag**, **choose where K can jump**.
+Three steps: **install**, **add the tag**, **choose where K can jump**. Then, if you like, [pick a colour and how often K perches](#4-optional-pick-a-colour-and-how-often-k-perches).
 
 ### 1. Install
 
@@ -175,6 +176,19 @@ Because you passed `perch="[data-cat-perch]"`, K only uses elements you marked. 
 
 **That's it.** Open your site and K waves hello. Press `Tab` to focus K, then `P` to make it jump onto something right away.
 
+### 4. Optional: pick a colour and how often K perches
+
+Both are attributes on the same tag. Leave them off and you get the classic white cat that perches `sometimes`.
+
+```html
+<pixel-cat color="calico" perch-rate="often"></pixel-cat>
+```
+
+- `color`: `default` (white), `orange` or `calico`. See [Colour](#colour).
+- `perch-rate`: `never`, `rarely`, `sometimes` or `often`. See [Jumping onto page elements](#jumping-onto-page-elements).
+
+In React or Next.js: `<PixelCat color="calico" perchRate="often" />`. Both can be changed later and take effect right away.
+
 ### Check it works
 
 - K appears at the bottom of the page and waves.
@@ -223,6 +237,23 @@ Or replace the whole list with your own selector:
 ```
 
 Turn it off with `perch="off"`.
+
+### How often K perches
+
+Set `perch-rate` to choose how often K jumps onto things by itself:
+
+```html
+<pixel-cat perch-rate="rarely"></pixel-cat>
+```
+
+| Value | Effect |
+|---|---|
+| `never` | K never chooses to perch on its own. |
+| `rarely` | About a third as often as normal. |
+| `sometimes` | The default. |
+| `often` | About three times as often as normal. |
+
+Unknown values count as `sometimes`, and you can change the attribute at any time. Pressing `P` (or calling `react('perching')`) always works, even at `never`. `perch` still decides *what* K can jump onto, and `perch="off"` turns perching off entirely.
 
 An element is only used if it is:
 
@@ -347,7 +378,7 @@ Details worth knowing:
 | `pixel-cat.js` | The whole component. Copy this one file. |
 | `PixelCat.tsx` | Optional Next.js App Router wrapper. |
 | `package.json` | Project metadata. |
-| `demo.html` | Self-contained demo with every state on a button. |
+| `demo.html` | Self-contained demo with every state on a button, plus colour and perch-rate switches. |
 | `demo.template.html` | Demo source. `demo.html` is this file with `pixel-cat.js` inlined. |
 | `assets/` | Screenshots and the demo GIF used in this README. |
 
