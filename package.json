@@ -1,6 +1,6 @@
 {
   "name": "pixel-cat",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "K the pixel cat: an interactive pixel-art cat for digital and web portfolios. One web component, zero dependencies.",
   "keywords": ["pixel-art", "web-component", "custom-element", "portfolio", "pet", "canvas", "nextjs", "react"],
   "license": "MIT",
