@@ -47,6 +47,8 @@
 
   .panel { background: var(--bg-2); border: 2px solid var(--line); padding: 22px; position: relative; }
   .panel::before { content: 'STATES'; position: absolute; top: -9px; left: 16px; background: var(--bg); padding: 0 8px; font: 400 11px var(--display); letter-spacing: .14em; color: var(--accent); }
+  .panel[data-label]::before { content: attr(data-label); }
+  .panel + .panel { margin-top: 26px; }
   .chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
   .chips button {
     font: 400 12px var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--text);
@@ -93,11 +95,17 @@
     </section>
 
     <aside>
+      <div class="panel" data-cat-perch data-label="COLOR">
+        <div class="chips" id="colors"></div>
+      </div>
+      <div class="panel" data-cat-perch data-label="PERCH RATE">
+        <div class="chips" id="rates"></div>
+      </div>
       <div class="panel" data-cat-perch>
         <div class="chips" id="chips"></div>
       </div>
       <pre data-cat-perch><em>&lt;script</em> type="module" src="/pixel-cat.js"<em>&gt;&lt;/script&gt;</em>
-<em>&lt;pixel-cat</em> <b>scale</b>="3" <b>sleep-after</b>="30"<em>&gt;&lt;/pixel-cat&gt;</em>
+<em>&lt;pixel-cat</em> <b>scale</b>="3" <b>color</b>="calico" <b>sleep-after</b>="30"<em>&gt;&lt;/pixel-cat&gt;</em>
 
 <em>// trigger from code</em>
 document.querySelector('pixel-cat').<b>react</b>('happy')</pre>
@@ -121,6 +129,28 @@ document.querySelector('pixel-cat').<b>react</b>('happy')</pre>
       b.setAttribute('aria-pressed', 'false');
       b.addEventListener('click', () => cat.react(s));
       chips.append(b);
+    }
+    const colors = document.getElementById('colors');
+    for (const c of ['default', 'orange', 'calico']) {
+      const b = document.createElement('button');
+      b.textContent = c;
+      b.setAttribute('aria-pressed', String(c === 'default'));
+      b.addEventListener('click', () => {
+        cat.setAttribute('color', c);
+        for (const o of colors.children) o.setAttribute('aria-pressed', String(o === b));
+      });
+      colors.append(b);
+    }
+    const rates = document.getElementById('rates');
+    for (const r of ['never', 'rarely', 'sometimes', 'often']) {
+      const b = document.createElement('button');
+      b.textContent = r;
+      b.setAttribute('aria-pressed', String(r === 'sometimes'));
+      b.addEventListener('click', () => {
+        cat.setAttribute('perch-rate', r);
+        for (const o of rates.children) o.setAttribute('aria-pressed', String(o === b));
+      });
+      rates.append(b);
     }
     cat.addEventListener('catstatechange', (e) => {
       out.textContent = e.detail.state;

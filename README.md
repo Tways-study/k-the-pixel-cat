@@ -39,6 +39,7 @@ That is the fastest way to try it. For Next.js, React, Astro, Vue, WordPress and
 - **18 states.** idle, curious, surprised, happy, excited, thinking, sad, angry, sleeping, waving, lookaround, walking, running, jumping, perching, rolling, stretching, pouncing.
 - **Reacts to you.** Eyes follow the cursor, it gallops toward a far-away pointer, gets curious on hover, sad when the mouse leaves the window, and sulks if you drop it from high up.
 - **Never blocks your page.** The canvas is `pointer-events: none`. Hits are tested against the sprite's real pixels, so only the cat itself is clickable.
+- **Three colours.** The classic white cat, a solid orange cat, or a calico. Pick one with `color="…"` and switch any time.
 - **Themeable** with CSS variables.
 - **Accessible.** Keyboard controls, screen-reader announcements, and `prefers-reduced-motion` support.
 
@@ -190,7 +191,7 @@ Because you passed `perch="[data-cat-perch]"`, K only uses elements you marked. 
 | K never jumps onto my elements | They may not match the selector, may be off screen, or may be more than about four cat-heights above where K stands. Mark a lower element too, as a stepping stone. |
 | K doesn't move at all | The visitor's system has "reduce motion" turned on, which keeps K still on purpose. |
 | K covers a button in the corner | K sits at the bottom of the screen. Move the button, or make K smaller with `scale="2"`. |
-| I changed colours and nothing happened | Colours are read when K mounts. Set the `--pixel-cat-*` variables before it loads, or reload. |
+| I changed a `--pixel-cat-*` variable and nothing happened | Variables are read when K mounts and when `color` changes. Set them before it loads, reload, or set the `color` attribute again. |
 
 ## Attributes
 
@@ -198,10 +199,12 @@ Because you passed `perch="[data-cat-perch]"`, K only uses elements you marked. 
 |---|---|---|
 | `mode` | `roam` | `roam` makes the cat wander along the bottom of the viewport. `inline` keeps it where you place it in your layout (no walking, no perching). |
 | `scale` | `3` | Pixel size multiplier, from 1 to 12. At 3 the cat is about 183 × 204 px on screen including its animation space. |
+| `color` | `default` | The cat's colour: `default` (white), `orange` or `calico`. Change it any time and K switches right away. Unknown values fall back to `default`. See [Colour](#colour). |
+| `perch-rate` | `sometimes` | How often K jumps onto things by itself: `never`, `rarely`, `sometimes` or `often`. Unknown values count as `sometimes`. It can change any time. The `P` key and `react('perching')` always work. |
 | `sleep-after` | `30` | Seconds without interaction before the cat falls asleep. |
 | `perch` | see below | CSS selector for elements the cat may jump onto, or `off` to disable perching. |
 
-Next.js wrapper props: `mode`, `scale`, `sleepAfter`, `perch`.
+Next.js wrapper props: `mode`, `scale`, `sleepAfter`, `perch`, `color`, `perchRate`.
 
 ## Jumping onto page elements
 
@@ -280,9 +283,27 @@ Focus the cat with `Tab`, then:
 | `J` | Jump |
 | `O` | Roll over |
 
+## Colour
+
+Choose K's colour with the `color` attribute when you add the tag:
+
+```html
+<pixel-cat color="calico"></pixel-cat>
+```
+
+| Value | Cat |
+|---|---|
+| `default` (or leave it off) | The classic white cat |
+| `orange` | A solid orange cat |
+| `calico` | A white cat with orange and black patches and a black tail |
+
+In React or Next.js: `<PixelCat color="orange" />`.
+
+Change the attribute later (`cat.setAttribute('color', 'orange')`, or a new prop value) and K switches colour straight away, in any state. Any `--pixel-cat-*` variable you set (see below) still wins over the colour's built-in value.
+
 ## Theming
 
-Set any of these on `pixel-cat` or an ancestor. Any valid CSS colour works.
+Set any of these on `pixel-cat` or an ancestor. Any valid CSS colour works. They override the built-in values of whichever `color` you picked.
 
 ```css
 pixel-cat {
@@ -294,7 +315,7 @@ pixel-cat {
 }
 ```
 
-Colours are read once when the element connects, so set them before it mounts or re-insert the element after changing them.
+Variables are read when the element connects and whenever its `color` attribute changes. After changing a variable on its own, re-insert the element or set `color` again.
 
 ## Accessibility
 
@@ -338,7 +359,7 @@ Any browser with custom elements, shadow DOM, ES modules, private class fields a
 
 - Perching targets are limited to what is on screen and within one jump of the cat.
 - Inline mode does not walk or perch.
-- Colours are read at mount time, not live.
+- `--pixel-cat-*` variables are read at mount time and when `color` changes, not live. The calico patch colours are fixed.
 
 ## License
 
