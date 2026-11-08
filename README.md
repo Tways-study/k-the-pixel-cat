@@ -15,7 +15,7 @@ One custom element. Zero dependencies. About 16 KB gzipped. Drawn entirely in co
 
 That is the fastest way to try it. For Next.js, React, Astro, Vue, WordPress and more, jump to [Getting started](#getting-started).
 
-> The cat is named **K**. The code names stay `pixel-cat`: the `<pixel-cat>` tag, the `pixel-cat` npm package and the `npx pixel-cat add` command.
+> The cat is named **K**. The code names stay `pixel-cat`: such as the `<pixel-cat>` tag and the `pixel-cat.js` file.
 
 **Live demo:** open `demo.html` in a browser (it is a single self-contained file).
 
@@ -48,38 +48,13 @@ Three steps: **install**, **add the tag**, **choose where K can jump**.
 
 ### 1. Install
 
-Pick one. All three give you the same cat.
+Download the files from this repo and put them in your project. There is nothing to build and no package to install.
 
-**Option A: one command (recommended).** Run this in the root folder of your project (the folder with `package.json`):
+1. Download `pixel-cat.js`.
+2. For React or Next.js, also download `PixelCat.tsx`.
+3. Put them in your project, for example in `components/` or `public/`. Keep both files in the same folder.
 
-```bash
-npx pixel-cat add
-```
-
-It copies `pixel-cat.js` into `components/` (or `src/components/` if your project uses `src/`). If it finds React or Next.js it also copies `PixelCat.tsx`. It then prints the exact lines to paste into your layout. Existing files are never overwritten unless you add `--force`.
-
-| Option | Effect |
-|---|---|
-| `--dir <path>` | Copy somewhere else, for example `--dir public` |
-| `--no-wrapper` | Only copy `pixel-cat.js` |
-| `--force` | Overwrite files that already exist |
-
-You own the copied files, so you can edit them freely, and your site gains no extra runtime dependency.
-
-**Option B: npm package.**
-
-```bash
-npm install pixel-cat
-```
-
-```js
-import 'pixel-cat';                          // registers the <pixel-cat> tag
-import PixelCat from 'pixel-cat/react';      // optional React wrapper
-```
-
-The React wrapper is TypeScript, so Next.js needs `transpilePackages: ['pixel-cat']` in `next.config.js`.
-
-**Option C: copy the file by hand.** Download `pixel-cat.js` (and `PixelCat.tsx` for React or Next.js) from this repo and put it anywhere in your project. There is nothing to build.
+You own the files, so you can edit them freely, and your site gains no extra runtime dependency.
 
 ### 2. Add K to your site
 
@@ -350,8 +325,7 @@ Details worth knowing:
 |---|---|
 | `pixel-cat.js` | The whole component. Copy this one file. |
 | `PixelCat.tsx` | Optional Next.js App Router wrapper. |
-| `bin/cli.mjs` | The `npx pixel-cat add` installer. |
-| `package.json` | npm package metadata. |
+| `package.json` | Project metadata. |
 | `demo.html` | Self-contained demo with every state on a button. |
 | `demo.template.html` | Demo source. `demo.html` is this file with `pixel-cat.js` inlined. |
 | `assets/` | Screenshots and the demo GIF used in this README. |
