@@ -17,6 +17,8 @@
  *   <pixel-cat mode="inline"></pixel-cat>    stays where you put it in your layout
  *
  * Attributes: mode="roam|inline"  scale="3"  sleep-after="30" (seconds)
+ * Colour: <pixel-cat color="default | orange | calico">
+ * Perching: <pixel-cat perch-rate="never | rarely | sometimes | often">
  * Theming: --pixel-cat-body / -ink / -outline / -accent / -shadow
  * API: el.react('running' | 'perching' | 'rolling' | …), el.pet()
  * Event: 'catstatechange' → event.detail.state
@@ -30,6 +32,8 @@ const HEAD_CX = 12;              // head spans cat x 0..24; its centre column is
 const GROUND = 29;               // cat-space row of the feet's bottom pixel
 
 const BODY = 1, INK = 2, LINE = 3;   // cat-layer cell codes
+const PATCH_A = 4, PATCH_B = 5;      // calico patches (orange / black): fur cells that carry a patch colour
+const isFur = (v) => v === BODY || v >= PATCH_A;
 const ACCENT = 1, LIGHT = 2;         // effect-layer cell codes
 
 // ── Small math helpers ───────────────────────────────────────────────────────
@@ -300,19 +304,35 @@ export function poseFor(state, e, t, c) {
   return p;
 }
 
+// Calico layout, in cat-space. Patches are checked in order; the first one that covers a cell wins.
+const inRect = (x, y, x0, y0, x1, y1) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
+const inEllipse = (x, y, cx, cy, rx, ry) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
+/** Face and ears (head space: x 0..24, y 0..21). */
+const headPatch = (x, y) =>
+  inRect(x, y, 2, 0, 10, 3) ? PATCH_A :                  // left ear
+  inRect(x, y, 18, 0, 24, 3) ? PATCH_B :                 // right ear
+  inEllipse(x, y, 12, 9, 4, 3) ? PATCH_B :               // forehead
+  inEllipse(x, y, 20, 16, 4, 3) ? PATCH_A : 0;           // right cheek
+/** Back, chest and hindquarters (body space: feet land on y = 29). */
+const bodyPatch = (x, y) =>
+  inEllipse(x, y, 28, 16, 5, 4) ? PATCH_B :              // back
+  inEllipse(x, y, 26, 23, 5, 3) ? PATCH_A :              // flank
+  inRect(x, y, 10, 21, 16, 26) ? PATCH_A : 0;            // chest
+
 /**
  * Pure function: pose → cell grids. `cat` gets BODY/INK/LINE codes, `fx` gets effect codes.
  * Cat-space: head is x 0..24 / y 0..21, feet land on y = 29.
- * @param {Pose} p  @param {Uint8Array} cat  @param {Uint8Array} fx  @param {boolean} flip
+ * With `calico` set, fur cells that fall inside a patch get PATCH_A / PATCH_B instead of BODY.
+ * @param {Pose} p  @param {Uint8Array} cat  @param {Uint8Array} fx  @param {boolean} flip  @param {boolean} [calico]
  */
-export function rasterize(p, cat, fx, flip) {
+export function rasterize(p, cat, fx, flip, calico = false) {
   cat.fill(0); fx.fill(0);
 
   const put = (x, y, v) => {
     const X = OX + x + p.dx, Y = OY + y + p.dy;
     if (X < 0 || Y < 0 || X >= W || Y >= H) return;
     const i = Y * W + X;
-    if (v === INK) { if (cat[i] === BODY) cat[i] = INK; } else cat[i] = v; // ink never leaks outside the body
+    if (v === INK) { if (isFur(cat[i])) cat[i] = INK; } else cat[i] = v; // ink never leaks outside the body
   };
   const rect = (x0, y0, x1, y1, v = BODY) => {
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) put(x, y, v);
@@ -411,7 +431,21 @@ export function rasterize(p, cat, fx, flip) {
     const k = i / 24, x = Math.round(bez(base[0], c1[0], c2[0], k));
     const s = puff ? (k > 0.82 ? 3 : 4) : k > 0.82 ? 2 : 3;
     const y = Math.min(floor - s, Math.round(bez(base[1], c1[1], c2[1], k)));
-    rect(x, y, x + s - 1, y + s - 1);
+    rect(x, y, x + s - 1, y + s - 1, calico && k > 0.55 ? PATCH_B : BODY);   // calico: black tail
+  }
+
+  // ── 3b. Calico patches. Head patches are placed in head space (they follow tilt, bob and belly-up);
+  //        body patches in body space (they follow the whole-body offset). ──
+  if (calico) {
+    for (let Y = 0; Y < H; Y++) for (let X = 0; X < W; X++) {
+      const i = Y * W + X;
+      if (cat[i] !== BODY) continue;
+      const by = Y - OY - p.dy, bx = X - OX - p.dx;
+      const hyy = p.vflip ? 21 - (by - p.hy) : by - p.hy;
+      const hxx = bx - p.hx - (p.shear ? Math.round((11 - hyy) * p.shear) : 0);
+      const patch = hyy >= 0 && hyy <= 21 && hxx >= -4 && hxx <= 28 ? headPatch(hxx, hyy) : bodyPatch(bx, by);
+      if (patch) cat[i] = patch;
+    }
   }
 
   // ── 4. Auto-outline: any empty cell touching the body (8-way) becomes LINE ──
@@ -420,7 +454,7 @@ export function rasterize(p, cat, fx, flip) {
     if (cat[i]) continue;
     outer: for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) {
       const nx = x + ox, ny = y + oy;
-      if (nx >= 0 && ny >= 0 && nx < W && ny < H && cat[ny * W + nx] === BODY) { cat[i] = LINE; break outer; }
+      if (nx >= 0 && ny >= 0 && nx < W && ny < H && isFur(cat[ny * W + nx])) { cat[i] = LINE; break outer; }
     }
   }
 
@@ -452,6 +486,13 @@ export function rasterize(p, cat, fx, flip) {
 const DEFAULTS = {
   body: '#ffffff', ink: '#0a0e1c', outline: '#1b2542', accent: '#8091cf', shadow: 'rgba(27,37,66,.75)',
 };
+/** Built-in colours for <pixel-cat color="…">. Anything not listed falls back to "default" (the white cat). */
+const WARM = { ink: '#1a1008', outline: '#3a2416', shadow: 'rgba(58,36,22,.6)' };
+const COLORS = {
+  default: DEFAULTS,
+  orange: { ...DEFAULTS, ...WARM, body: '#f08a2e' },
+  calico: { ...DEFAULTS, ...WARM, body: '#fbf6ee', patchA: '#f08a2e', patchB: '#2b2622' },
+};
 const ANNOUNCE = {
   happy: 'The cat purrs happily.', excited: 'The cat is very excited!', angry: 'The cat is annoyed.',
   sleeping: 'The cat fell asleep.', surprised: 'The cat is startled.', jumping: 'The cat jumps.',
@@ -461,6 +502,8 @@ const ANNOUNCE = {
 const MOVING = ['walking', 'running'];
 /** Elements the cat may jump onto. Override with <pixel-cat perch="your css selector"> or perch="off". */
 const DEFAULT_PERCH = '[data-cat-perch], h1, h2, h3, img, figure, button, article, .card';
+/** How often the cat picks "jump onto something" when idle, as a multiple of the normal chance. */
+const PERCH_RATE = { never: 0, rarely: 1 / 3, sometimes: 1, often: 3 };
 const MAX_JUMP = 120;            // highest single jump, logical px (≈ 4 cat-heights, like a real cat)
 
 /** Turns any CSS colour string into [r,g,b,a] by letting the browser parse it. */
@@ -474,10 +517,10 @@ function toRGBA(str, fallback) {
 }
 
 class PixelCat extends HTMLElement {
-  static get observedAttributes() { return ['scale', 'mode']; }
+  static get observedAttributes() { return ['scale', 'mode', 'color']; }
 
   // Rendering
-  #canvas; #ctx; #img; #cat = new Uint8Array(W * H); #fx = new Uint8Array(W * H); #pal = {};
+  #canvas; #ctx; #img; #cat = new Uint8Array(W * H); #fx = new Uint8Array(W * H); #pal = {}; #calico = false;
   #bb = { x0: 0, y0: 0, x1: 0, y1: 0 };                 // tight bounds of the drawn sprite (for hit-testing)
   // State machine
   state = 'idle'; #since = 0; #raf = 0; #last = 0; #ac = /** @type {AbortController|null} */ (null);
@@ -571,7 +614,11 @@ class PixelCat extends HTMLElement {
   disconnectedCallback() {
     this.#ac?.abort(); cancelAnimationFrame(this.#raf); this.#setCursor('');
   }
-  attributeChangedCallback() { if (this.isConnected) { this.#applyScale(); this.#applyTransform(true); } }
+  attributeChangedCallback(name) {
+    if (!this.isConnected) return;
+    if (name === 'color') this.#readPalette();
+    else { this.#applyScale(); this.#applyTransform(true); }
+  }
 
   // ── Public API ──
   /** Trigger a behaviour, e.g. el.react('perching') makes the cat jump onto something on the page. */
@@ -596,7 +643,13 @@ class PixelCat extends HTMLElement {
   }
   #readPalette() {
     const cs = getComputedStyle(this);
-    for (const k of Object.keys(DEFAULTS)) this.#pal[k] = toRGBA(cs.getPropertyValue(`--pixel-cat-${k}`).trim(), DEFAULTS[k]);
+    const name = (this.getAttribute('color') || 'default').trim().toLowerCase();
+    const base = COLORS[name] ?? COLORS.default;
+    this.#calico = name === 'calico';
+    // Explicit --pixel-cat-* variables win over the colour's built-in values
+    for (const k of Object.keys(DEFAULTS)) this.#pal[k] = toRGBA(cs.getPropertyValue(`--pixel-cat-${k}`).trim(), base[k]);
+    this.#pal.patchA = toRGBA('', base.patchA ?? base.body);
+    this.#pal.patchB = toRGBA('', base.patchB ?? base.body);
   }
   #set(state) {
     if (!MOVING.includes(state)) this.#speed = 0;
@@ -695,11 +748,12 @@ class PixelCat extends HTMLElement {
   #ambient(now) {
     const roam = this.#roam && !this.#reduced, ptr = this.#pointer, up = !!this.#perch;
     if (roam && !up && ptr && now - ptr.at < 2500 && Math.abs(ptr.x - this.#x) > 220 && Math.random() < 0.45) return this.#goTo(ptr.x);
+    const rate = PERCH_RATE[(this.getAttribute('perch-rate') || '').trim().toLowerCase()] ?? 1;   // read live; unknown → sometimes
     const [lo, hi] = this.#range();
     const pick = [
       [roam ? 0.22 : 0, () => this.#goTo(lo + Math.random() * (hi - lo), false)],
       [roam && !up ? 0.08 : 0, () => this.#goTo(this.#x < (lo + hi) / 2 ? hi : lo, true)],
-      [roam ? (up ? 0.16 : 0.18) : 0, () => this.#goPerch() || this.#set('lookaround')],   // jump onto something
+      [roam ? (up ? 0.16 : 0.18) * rate : 0, () => this.#goPerch() || this.#set('lookaround')],   // jump onto something
       [up ? 0.18 : 0, () => this.#hopDown()],
       [roam && !up ? 0.06 : 0, () => { if (ptr) this.#facing = ptr.x > this.#x ? 1 : -1; this.#set('pouncing'); }],
       [0.07, () => this.#set('rolling')], [0.08, () => this.#set('stretching')],
@@ -811,7 +865,7 @@ class PixelCat extends HTMLElement {
       jumpH: this.#jump.h, vy: this.#vy / (this.#vy0 || 1), ear: now < this.#earUntil ? 1 : 0, flick: now < this.#flickUntil ? 1 : 0,
     });
     if (flip) { p.lx = -p.lx; p.hx = -p.hx; }                         // offsets are drawn pre-flip, so mirror them
-    rasterize(p, this.#cat, this.#fx, flip);
+    rasterize(p, this.#cat, this.#fx, flip, this.#calico);
 
     const data = this.#img.data; data.fill(0);
     const px = (x, y, c) => {
@@ -824,7 +878,7 @@ class PixelCat extends HTMLElement {
         if (((x - cx) / rx) ** 2 + (dy / 1.6) ** 2 <= 1) px(flip ? MX - x : x, cy + dy, this.#pal.shadow);
       }
     }
-    const colors = [null, this.#pal.body, this.#pal.ink, this.#pal.outline];
+    const colors = [null, this.#pal.body, this.#pal.ink, this.#pal.outline, this.#pal.patchA, this.#pal.patchB];
     let x0 = W, y0 = H, x1 = 0, y1 = 0;
     for (let i = 0; i < this.#cat.length; i++) {
       const v = this.#cat[i]; if (!v) continue;
